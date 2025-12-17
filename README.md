@@ -54,7 +54,7 @@ Solar System Explorer is a single-page web application that provides an engaging
 
 1. **Clone or Download**
    ```bash
-   git clone https://github.com/yourusername/solar-system-explorer.git
+   git clone https://github.com/SKsiddhant/solar-system-explorer.git
    ```
    Or simply download the HTML file.
 
