@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0f0c29 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 30px rgba(100, 200, 255, 0.8); }
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #a0a0ff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .planets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .planet-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .planet-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(100, 200, 255, 0.3);
+        }
+
+        .planet-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .planet-name {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .planet-type {
+            color: #a0a0ff;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .planet-fact {
+            font-size: 0.85em;
+            line-height: 1.6;
+            color: #ddd;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(26, 26, 62, 0.95) 0%, rgba(15, 12, 41, 0.95) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-planet-icon {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+
+        .detail-section {
+            margin: 20px 0;
+        }
+
+        .detail-title {
+            font-size: 1.2em;
+            color: #a0a0ff;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .detail-text {
+            line-height: 1.8;
+            color: #ddd;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #a0a0ff;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <header>
+        <h1>🌟 Solar System Explorer</h1>
+        <p class="subtitle">Discover the wonders of our cosmic neighborhood</p>
+    </header>
+
+    <div class="container">
+        <div class="planets-grid" id="planetsGrid"></div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content" id="modalContent">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+    </div>
+
+    <script>
+        const planets = [
+            {
+                name: "Sun",
+                icon: "☀️",
+                type: "Star",
+                color: "#FDB813",
+                shortFact: "The heart of our solar system",
+                description: "The Sun is a massive ball of plasma that provides light and heat to all planets in our solar system. It contains 99.86% of the solar system's mass.",
+                diameter: "1,391,000 km",
+                mass: "1.989 × 10³⁰ kg",
+                temperature: "5,500°C (surface)",
+                composition: "73% Hydrogen, 25% Helium"
+            },
+            {
+                name: "Mercury",
+                icon: "☿",
+                type: "Rocky Planet",
+                color: "#8C7853",
+                shortFact: "Fastest planet orbiting the Sun",
+                description: "Mercury is the smallest planet and closest to the Sun. Despite being so close, it's not the hottest planet. Its surface is covered with craters.",
+                diameter: "4,879 km",
+                mass: "3.285 × 10²³ kg",
+                dayLength: "59 Earth days",
+                yearLength: "88 Earth days"
+            },
+            {
+                name: "Venus",
+                icon: "♀",
+                type: "Rocky Planet",
+                color: "#FFC649",
+                shortFact: "Hottest planet with toxic clouds",
+                description: "Venus is similar in size to Earth but has a thick atmosphere of carbon dioxide. Its surface temperature can melt lead, making it the hottest planet.",
+                diameter: "12,104 km",
+                mass: "4.867 × 10²⁴ kg",
+                dayLength: "243 Earth days",
+                yearLength: "225 Earth days"
+            },
+            {
+                name: "Earth",
+                icon: "🌍",
+                type: "Rocky Planet",
+                color: "#4169E1",
+                shortFact: "Our home, the blue marble",
+                description: "Earth is the only known planet with liquid water on its surface and the only one known to harbor life. It has one natural satellite, the Moon.",
+                diameter: "12,742 km",
+                mass: "5.972 × 10²⁴ kg",
+                dayLength: "24 hours",
+                yearLength: "365.25 days"
+            },
+            {
+                name: "Mars",
+                icon: "♂",
+                type: "Rocky Planet",
+                color: "#CD5C5C",
+                shortFact: "The Red Planet with polar ice caps",
+                description: "Mars is known as the Red Planet due to iron oxide on its surface. It has the largest volcano and canyon in the solar system.",
+                diameter: "6,779 km",
+                mass: "6.39 × 10²³ kg",
+                dayLength: "24.6 hours",
+                yearLength: "687 Earth days"
+            },
+            {
+                name: "Jupiter",
+                icon: "♃",
+                type: "Gas Giant",
+                color: "#C88B3A",
+                shortFact: "Largest planet with Great Red Spot",
+                description: "Jupiter is the largest planet in our solar system. Its Great Red Spot is a giant storm that has raged for hundreds of years. It has 95 known moons.",
+                diameter: "139,820 km",
+                mass: "1.898 × 10²⁷ kg",
+                dayLength: "10 hours",
+                yearLength: "12 Earth years"
+            },
+            {
+                name: "Saturn",
+                icon: "♄",
+                type: "Gas Giant",
+                color: "#FAD5A5",
+                shortFact: "Famous for its spectacular rings",
+                description: "Saturn is best known for its beautiful ring system made of ice and rock particles. It's the second-largest planet and could float in water.",
+                diameter: "116,460 km",
+                mass: "5.683 × 10²⁶ kg",
+                dayLength: "10.7 hours",
+                yearLength: "29 Earth years"
+            },
+            {
+                name: "Uranus",
+                icon: "♅",
+                type: "Ice Giant",
+                color: "#4FD0E0",
+                shortFact: "Rotates on its side",
+                description: "Uranus is unique because it rotates on its side. This ice giant has a blue-green color due to methane in its atmosphere.",
+                diameter: "50,724 km",
+                mass: "8.681 × 10²⁵ kg",
+                dayLength: "17.2 hours",
+                yearLength: "84 Earth years"
+            },
+            {
+                name: "Neptune",
+                icon: "♆",
+                type: "Ice Giant",
+                color: "#4169E1",
+                shortFact: "Windiest planet in solar system",
+                description: "Neptune is the farthest planet from the Sun. It has the strongest winds in the solar system, reaching speeds of 2,100 km/h.",
+                diameter: "49,244 km",
+                mass: "1.024 × 10²⁶ kg",
+                dayLength: "16 hours",
+                yearLength: "165 Earth years"
+            }
+        ];
+
+        // Create stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = Math.random() * 2 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Create planet cards
+        const grid = document.getElementById('planetsGrid');
+        planets.forEach((planet, index) => {
+            const card = document.createElement('div');
+            card.className = 'planet-card';
+            card.onclick = () => openModal(index);
+            card.innerHTML = `
+                <div class="planet-icon" style="background: radial-gradient(circle at 30% 30%, ${planet.color}dd, ${planet.color}44);">
+                    ${planet.icon}
+                </div>
+                <div class="planet-name">${planet.name}</div>
+                <div class="planet-type">${planet.type}</div>
+                <div class="planet-fact">${planet.shortFact}</div>
+            `;
+            grid.appendChild(card);
+        });
+
+        function openModal(index) {
+            const planet = planets[index];
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <div class="modal-planet-icon" style="background: radial-gradient(circle at 30% 30%, ${planet.color}dd, ${planet.color}44);">
+                    ${planet.icon}
+                </div>
+                <h2 style="text-align: center; margin-bottom: 20px;">${planet.name}</h2>
+                <div class="detail-section">
+                    <div class="detail-title">About</div>
+                    <div class="detail-text">${planet.description}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-title">Quick Facts</div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Diameter</div>
+                            <div class="stat-value">${planet.diameter}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Mass</div>
+                            <div class="stat-value">${planet.mass}</div>
+                        </div>
+                        ${planet.dayLength ? `
+                        <div class="stat-box">
+                            <div class="stat-label">Day Length</div>
+                            <div class="stat-value">${planet.dayLength}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Year Length</div>
+                            <div class="stat-value">${planet.yearLength}</div>
+                        </div>
+                        ` : `
+                        <div class="stat-box">
+                            <div class="stat-label">Temperature</div>
+                            <div class="stat-value">${planet.temperature}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Composition</div>
+                            <div class="stat-value">${planet.composition}</div>
+                        </div>
+                        `}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
