@@ -35,6 +35,7 @@ Solar System Explorer is a single-page web application that provides an engaging
   - Smooth modal transitions
 - **Scientific Data**: Includes diameter, mass, orbital periods, and interesting facts
 - **Modern UI**: Glassmorphism effects and gradient backgrounds
+- **Keyboard accessible**: planets open with Enter/Space, Esc closes the dialog and focus returns to the card
 - **No Dependencies**: Pure vanilla JavaScript - no frameworks required
 
 ## 🛠 Technologies Used
@@ -54,7 +55,7 @@ Solar System Explorer is a single-page web application that provides an engaging
 
 1. **Clone or Download**
    ```bash
-   git clone https://github.com/SKsiddhant/solar-system-explorer.git
+   git clone https://github.com/SKsiddhant/solar_system_exploror.git
    ```
    Or simply download the HTML file.
 
@@ -71,7 +72,7 @@ Solar System Explorer is a single-page web application that provides an engaging
 ## 🚀 Usage
 
 ### Basic Usage
-1. Open `index.html` in any modern web browser
+1. Open `solar_system_explorer.html` (or `index.html`, which redirects to it) in any modern web browser
 2. Click on any planet card to view detailed information
 3. Click the × button or outside the modal to close it
 4. Enjoy exploring the solar system!
@@ -90,9 +91,10 @@ npx http-server
 ## 📁 Project Structure
 
 ```
-solar-system-explorer/
+solar_system_exploror/
 │
-├── index.html          # Main HTML file (contains all code)
+├── index.html                  # Redirects to the page below (so the root URL works on static hosting)
+├── solar_system_explorer.html  # Main page (contains all code)
 │   ├── HTML Structure
 │   ├── CSS Styles (embedded in <style> tag)
 │   └── JavaScript (embedded in <script> tag)
@@ -100,7 +102,7 @@ solar-system-explorer/
 └── README.md          # This file
 ```
 
-### Code Organization Within index.html
+### Code Organization Within solar_system_explorer.html
 
 ```
 <!DOCTYPE html>
@@ -189,6 +191,15 @@ Contributions are welcome! Here's how you can help:
 - Add a search/filter feature
 - Include orbital visualization
 - Add quiz or educational games
+
+## 🧪 Tests
+
+```bash
+npm install
+npm test
+```
+
+Loads the page in jsdom and checks that all nine cards render and that mouse and keyboard open/close the dialog.
 
 ## 📝 License
 

@@ -246,6 +246,24 @@
             font-size: 1.1em;
             font-weight: bold;
         }
+
+        /* keyboard focus + small screens + reduced motion */
+        .planet-card:focus-visible, .close-btn:focus-visible {
+            outline: 3px solid #a0a0ff;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .modal-content { padding: 30px 20px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -261,8 +279,8 @@
     </div>
 
     <div class="modal" id="modal">
-        <div class="modal-content" id="modalContent">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div class="modal-content" id="modalContent" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <span class="close-btn" role="button" tabindex="0" aria-label="Close" onclick="closeModal()">&times;</span>
         </div>
     </div>
 
@@ -396,7 +414,16 @@
         planets.forEach((planet, index) => {
             const card = document.createElement('div');
             card.className = 'planet-card';
-            card.onclick = () => openModal(index);
+            card.setAttribute('role', 'button');
+            card.tabIndex = 0;
+            card.setAttribute('aria-label', `${planet.name}: ${planet.shortFact}. Open details`);
+            card.onclick = () => openModal(index, card);
+            card.onkeydown = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openModal(index, card);
+                }
+            };
             card.innerHTML = `
                 <div class="planet-icon" style="background: radial-gradient(circle at 30% 30%, ${planet.color}dd, ${planet.color}44);">
                     ${planet.icon}
@@ -408,17 +435,20 @@
             grid.appendChild(card);
         });
 
-        function openModal(index) {
+        let lastFocused = null;
+
+        function openModal(index, opener) {
+            lastFocused = opener || null;
             const planet = planets[index];
             const modal = document.getElementById('modal');
             const content = document.getElementById('modalContent');
             
             content.innerHTML = `
-                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <span class="close-btn" role="button" tabindex="0" aria-label="Close" onclick="closeModal()">&times;</span>
                 <div class="modal-planet-icon" style="background: radial-gradient(circle at 30% 30%, ${planet.color}dd, ${planet.color}44);">
                     ${planet.icon}
                 </div>
-                <h2 style="text-align: center; margin-bottom: 20px;">${planet.name}</h2>
+                <h2 id="modalTitle" style="text-align: center; margin-bottom: 20px;">${planet.name}</h2>
                 <div class="detail-section">
                     <div class="detail-title">About</div>
                     <div class="detail-text">${planet.description}</div>
@@ -458,11 +488,28 @@
             `;
             
             modal.classList.add('active');
+            content.querySelector('.close-btn').focus();
         }
 
         function closeModal() {
             document.getElementById('modal').classList.remove('active');
+            if (lastFocused) {
+                lastFocused.focus();
+                lastFocused = null;
+            }
         }
+
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('modal');
+            if (!modal.classList.contains('active')) return;
+            if (e.key === 'Escape') {
+                closeModal();
+            } else if ((e.key === 'Enter' || e.key === ' ') && e.target.classList &&
+                       e.target.classList.contains('close-btn')) {
+                e.preventDefault();
+                closeModal();
+            }
+        });
 
         // Close modal when clicking outside
         document.getElementById('modal').addEventListener('click', (e) => {
